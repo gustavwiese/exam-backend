@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/results")
@@ -20,6 +21,15 @@ public class ResultController {
     public ResponseEntity<ResultDTO> createResult(@RequestBody ResultDTO resultDTO) {
         return new ResponseEntity<>(resultService.createResult(resultDTO), HttpStatus.CREATED);
     }
+
+    @PostMapping("/bulk")
+    public ResponseEntity<List<ResultDTO>> createResultsBulk(@RequestBody List<ResultDTO> resultDTOs) {
+        List<ResultDTO> results = resultDTOs.stream()
+                .map(resultService::createResult)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(results, HttpStatus.CREATED);
+    }
+
 
     @GetMapping
     public List<ResultDTO> getAllResults() {
