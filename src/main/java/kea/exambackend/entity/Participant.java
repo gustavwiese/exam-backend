@@ -1,7 +1,9 @@
 package kea.exambackend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import kea.exambackend.dto.ParticipantDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +17,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Participant {
+public class Participant{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,13 +26,13 @@ public class Participant {
     private int age;
     private String club;
 
-    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "participant_discipline",
             joinColumns = @JoinColumn(name = "participant_id"),
             inverseJoinColumns = @JoinColumn(name = "discipline_id")
     )
+    @JsonIgnoreProperties("participants")
     private Set<Discipline> disciplines = new HashSet<>();
 
     public Participant(String name, String gender, int age, String club) {

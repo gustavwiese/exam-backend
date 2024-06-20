@@ -1,6 +1,6 @@
 package kea.exambackend.controller;
 
-import kea.exambackend.entity.Participant;
+import kea.exambackend.dto.ParticipantDTO;
 import kea.exambackend.service.ParticipantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,23 +16,23 @@ public class ParticipantController {
     private ParticipantService participantService;
 
     @PostMapping
-    public ResponseEntity<Participant> createParticipant(@RequestBody Participant participant) {
-        return new ResponseEntity<>(participantService.createParticipant(participant), HttpStatus.CREATED);
+    public ResponseEntity<ParticipantDTO> createParticipant(@RequestBody ParticipantDTO participantDTO) {
+        return new ResponseEntity<>(participantService.createParticipant(participantDTO), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public List<Participant> getAllParticipants() {
+    public List<ParticipantDTO> getAllParticipants() {
         return participantService.getAllParticipants();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Participant> getParticipantById(@PathVariable Long id) {
+    public ResponseEntity<ParticipantDTO> getParticipantById(@PathVariable Long id) {
         return new ResponseEntity<>(participantService.getParticipantById(id), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Participant> updateParticipant(@PathVariable Long id, @RequestBody Participant participantDetails) {
-        return new ResponseEntity<>(participantService.updateParticipant(id, participantDetails), HttpStatus.OK);
+    public ResponseEntity<ParticipantDTO> updateParticipant(@PathVariable Long id, @RequestBody ParticipantDTO participantDTO) {
+        return new ResponseEntity<>(participantService.updateParticipant(id, participantDTO), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
@@ -42,7 +42,7 @@ public class ParticipantController {
     }
 
     @GetMapping("/search")
-    public List<Participant> searchParticipantsByName(@RequestParam String name) {
+    public List<ParticipantDTO> searchParticipantsByName(@RequestParam String name) {
         return participantService.searchParticipantsByName(name);
     }
 }

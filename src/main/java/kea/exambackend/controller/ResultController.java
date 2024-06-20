@@ -1,11 +1,11 @@
 package kea.exambackend.controller;
-import kea.exambackend.repository.ResultRepository;
+
+import kea.exambackend.dto.ResultDTO;
+import kea.exambackend.service.ResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import kea.exambackend.entity.Result;
-
 
 import java.util.List;
 
@@ -14,40 +14,41 @@ import java.util.List;
 public class ResultController {
 
     @Autowired
-    private ResultRepository resultRepository;
+    private ResultService resultService;
 
     @PostMapping
-    public ResponseEntity<Result> createResult(@RequestBody Result result) {
-        return new ResponseEntity<>(resultRepository.save(result), HttpStatus.CREATED);
+    public ResponseEntity<ResultDTO> createResult(@RequestBody ResultDTO resultDTO) {
+        return new ResponseEntity<>(resultService.createResult(resultDTO), HttpStatus.CREATED);
     }
 
-    @PostMapping("/bulk")
-    public ResponseEntity<List<Result>> createResults(@RequestBody List<Result> results) {
-        return new ResponseEntity<>(resultRepository.saveAll(results), HttpStatus.CREATED);
+    @GetMapping
+    public List<ResultDTO> getAllResults() {
+        return resultService.getAllResults();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ResultDTO> getResultById(@PathVariable Long id) {
+        return new ResponseEntity<>(resultService.getResultById(id), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Result> updateResult(@PathVariable Long id, @RequestBody Result resultDetails) {
-        Result result = resultRepository.findById(id).orElseThrow(() -> new RuntimeException("Result not found"));
-        result.setDate(resultDetails.getDate());
-        result.setResultValue(resultDetails.getResultValue());
-        return new ResponseEntity<>(resultRepository.save(result), HttpStatus.OK);
+    public ResponseEntity<ResultDTO> updateResult(@PathVariable Long id, @RequestBody ResultDTO resultDTO) {
+        return new ResponseEntity<>(resultService.updateResult(id, resultDTO), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteResult(@PathVariable Long id) {
-        Result result = resultRepository.findById(id).orElseThrow(() -> new RuntimeException("Result not found"));
-        resultRepository.delete(result);
+        resultService.deleteResult(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping("/discipline/{disciplineId}")
-    public List<Result> getResultsByDiscipline(@PathVariable Long disciplineId) {
-        return resultRepository.findByDisciplineIdOrderByResultValue(disciplineId);
+    public List<ResultDTO> getResultsByDiscipline(@PathVariable Long disciplineId) {
+        return resultService.getResultsByDiscipline(disciplineId);
     }
 
-    @GetMapping("/discipline/{disciplineId}/filter")
-    public List<Result> getResultsByDisciplineAndFilter(@PathVariable Long disciplineId, @RequestParam String gender, @RequestParam int minAge, @RequestParam int maxAge) {
-        return resultRepository.findByDisciplineIdAndParticipantGenderAndParticipantAgeBetweenOrderByResultValue(disciplineId, gender, minAge, maxAge);
+    @GetMapping("/participant/{participantId}")
+    public List<ResultDTO> getResultsByParticipant(@PathVariable Long participantId) {
+        return resultService.getResultsByParticipant(participantId);
     }
 }

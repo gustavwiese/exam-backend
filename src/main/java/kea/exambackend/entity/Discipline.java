@@ -1,5 +1,6 @@
 package kea.exambackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +26,9 @@ public class Discipline {
     @ManyToMany(mappedBy = "disciplines")
     private Set<Participant> participants = new HashSet<>();
 
-    public Discipline(String decathlon, String points) {
+    public Discipline(String name, String resultType) {
+        this.name = name;
+        this.resultType = resultType;
     }
+
 }
