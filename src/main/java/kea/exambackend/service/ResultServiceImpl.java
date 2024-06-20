@@ -7,6 +7,8 @@ import kea.exambackend.entity.Discipline;
 import kea.exambackend.entity.Participant;
 import kea.exambackend.entity.Result;
 import kea.exambackend.repository.ResultRepository;
+import kea.exambackend.repository.ParticipantRepository; // Importer ParticipantRepository
+import kea.exambackend.repository.DisciplineRepository; // Importer DisciplineRepository
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,12 @@ public class ResultServiceImpl implements ResultService {
 
     @Autowired
     private ResultRepository resultRepository;
+
+    @Autowired
+    private ParticipantRepository participantRepository; // Tilføj denne linje
+
+    @Autowired
+    private DisciplineRepository disciplineRepository; // Tilføj denne linje
 
     @Override
     public ResultDTO createResult(ResultDTO resultDTO) {
@@ -43,8 +51,7 @@ public class ResultServiceImpl implements ResultService {
     public ResultDTO updateResult(Long id, ResultDTO resultDTO) {
         Result existingResult = resultRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Result not found with id: " + id));
-        existingResult.setDate(resultDTO.getDate());
-        existingResult.setResultValue(resultDTO.getResultValue());
+        updateEntityFromDTO(existingResult, resultDTO);
         return convertToDTO(resultRepository.save(existingResult));
     }
 
@@ -72,7 +79,6 @@ public class ResultServiceImpl implements ResultService {
         resultDTO.setId(result.getId());
         resultDTO.setDate(result.getDate());
         resultDTO.setResultValue(result.getResultValue());
-        // Convert Participant and Discipline entities to DTOs
         resultDTO.setParticipant(convertToDTO(result.getParticipant()));
         resultDTO.setDiscipline(convertToDTO(result.getDiscipline()));
         return resultDTO;
@@ -80,11 +86,23 @@ public class ResultServiceImpl implements ResultService {
 
     private Result convertToEntity(ResultDTO resultDTO) {
         Result result = new Result();
-        result.setId(resultDTO.getId());
+        updateEntityFromDTO(result, resultDTO);
+        return result;
+    }
+
+    private void updateEntityFromDTO(Result result, ResultDTO resultDTO) {
         result.setDate(resultDTO.getDate());
         result.setResultValue(resultDTO.getResultValue());
-        // Convert ParticipantDTO and DisciplineDTO to entities if necessary
-        return result;
+        if (resultDTO.getParticipant() != null && resultDTO.getParticipant().getId() != null) {
+            Participant participant = participantRepository.findById(resultDTO.getParticipant().getId())
+                    .orElseThrow(() -> new RuntimeException("Participant not found with id: " + resultDTO.getParticipant().getId()));
+            result.setParticipant(participant);
+        }
+        if (resultDTO.getDiscipline() != null && resultDTO.getDiscipline().getId() != null) {
+            Discipline discipline = disciplineRepository.findById(resultDTO.getDiscipline().getId())
+                    .orElseThrow(() -> new RuntimeException("Discipline not found with id: " + resultDTO.getDiscipline().getId()));
+            result.setDiscipline(discipline);
+        }
     }
 
     private ParticipantDTO convertToDTO(Participant participant) {
@@ -94,6 +112,7 @@ public class ResultServiceImpl implements ResultService {
         participantDTO.setGender(participant.getGender());
         participantDTO.setAge(participant.getAge());
         participantDTO.setClub(participant.getClub());
+        // You may need to set disciplines here if needed
         return participantDTO;
     }
 
@@ -102,6 +121,7 @@ public class ResultServiceImpl implements ResultService {
         disciplineDTO.setId(discipline.getId());
         disciplineDTO.setName(discipline.getName());
         disciplineDTO.setResultType(discipline.getResultType());
+        // You may need to set participants here if needed
         return disciplineDTO;
     }
 }
